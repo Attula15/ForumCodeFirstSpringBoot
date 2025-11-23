@@ -22,7 +22,7 @@ public class BlogPost {
     private String content;
 
     @ManyToOne//Many BlogPost to One User
-    private User owner;
+    private ForumUser owner;
 
     @ManyToMany
     @JoinTable(
