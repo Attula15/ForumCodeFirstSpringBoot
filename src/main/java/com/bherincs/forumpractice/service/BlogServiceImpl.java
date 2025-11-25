@@ -61,21 +61,16 @@ public class BlogServiceImpl implements BlogService {
             return Optional.empty();
         }
 
-        //TODO: Optimize it with saveAll method
+        List<Tag> newTags = new ArrayList<>();
+
         for(var newTagName : diffOfTags){
-            try{
-                Tag newTag = new Tag();
-                newTag.setName(newTagName);
-
-                tagRepository.save(newTag);
-
-                listOfTagsFound.add(newTag);
-            }
-            catch (Exception ex){
-                log.error("Could not create tag with name: {}", newTagName);
-                return Optional.empty();
-            }
+            Tag newTag = new Tag();
+            newTag.setName(newTagName);
+            newTags.add(newTag);
         }
+
+        tagRepository.saveAll(newTags);
+        listOfTagsFound.addAll(newTags);
 
         BlogPost newPost = new BlogPost(title, content, foundUser.get(), Date.from(Instant.now()), listOfTagsFound);
         blogRepository.save(newPost);

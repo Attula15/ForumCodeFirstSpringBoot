@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
+//TODO: Add a more detailed return body, that can provide with some info about the error
 @RestController
 @RequestMapping("/api/blog")
 public class BlogPostController {
@@ -38,8 +40,14 @@ public class BlogPostController {
     }
 
     @GetMapping("/posts")
-    public ResponseEntity<Page<BlogDTO>> fetchBlogPosts(@RequestParam Long pageSize, @RequestParam Long pageNumber) throws NotImplementedException {
-        throw new NotImplementedException();
+    public ResponseEntity<Page<BlogDTO>> fetchBlogPosts(@RequestParam int pageSize, @RequestParam int pageNumber) {
+        if(pageSize < 1 || pageNumber < 0){
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+
+        var result = blogService.findAllPosts(pageNumber, pageSize);
+
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @GetMapping("/posts/{id}")
