@@ -1,5 +1,6 @@
 package com.bherincs.forumpractice.service;
 
+import com.azure.security.keyvault.secrets.SecretClient;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -7,7 +8,6 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
@@ -19,8 +19,16 @@ import java.util.function.Function;
 @Component
 public class JwtService {
 
+    //Secret client for using Azure Keyvault
+    private final SecretClient secretClient;
+
     //This can also be managed by the Azure Key Vault
-    public static final String SECRET = "fgvsdhizufrt4esizufhersziuegbshjdrfbvukjshiurfhseuofhjaiklwsdjakjbdfhzjshioudfjaskhjefb_";
+    private final String secret;
+
+    public JwtService(SecretClient secretClient) {
+        this.secretClient = secretClient;
+        secret = this.secretClient.getSecret("JWTSecret").getValue();
+    }
 
     public String generateToken(String username) {
         Map<String, Object> claims = new HashMap<>();//In the future this can be useful. Like admin and user roles
@@ -38,7 +46,7 @@ public class JwtService {
     }
 
     private Key getSignKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET);
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
