@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Nationalized;
 
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -24,6 +25,9 @@ public class BlogPost {
     @ManyToOne//Many BlogPost to One User
     private ForumUser owner;
 
+    @Column(nullable = false)
+    private Date creationDate;
+
     @ManyToMany
     @JoinTable(
             name = "tag_blog_connection_table",
@@ -33,4 +37,15 @@ public class BlogPost {
 
     @OneToMany(mappedBy = "rootBlog")//One BlogPost to Many Comment
     private List<Comment> comments;
+
+    public BlogPost(String title, String content, ForumUser owner, Date creationDate, List<Tag> tags) {
+        this.title = title;
+        this.content = content;
+        this.owner = owner;
+        this.creationDate = creationDate;
+        this.tags = tags;
+    }
+
+    public BlogPost() {
+    }
 }
