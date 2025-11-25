@@ -3,9 +3,11 @@ package com.bherincs.forumpractice.controllers;
 import com.azure.security.keyvault.jca.implementation.shaded.org.apache.hc.core5.http.NotImplementedException;
 import com.bherincs.forumpractice.controllers.dto.blog.BlogDTO;
 import com.bherincs.forumpractice.controllers.dto.blog.CreateBlogDTO;
+import com.bherincs.forumpractice.controllers.dto.blog.DetailedBlogDTO;
 import com.bherincs.forumpractice.service.JwtService;
 import com.bherincs.forumpractice.service.inter.BlogService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.val;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,7 +53,13 @@ public class BlogPostController {
     }
 
     @GetMapping("/posts/{id}")
-    public ResponseEntity<BlogDTO> fetchBlogById(@PathVariable Long id) throws NotImplementedException {
-        throw new NotImplementedException();
+    public ResponseEntity<DetailedBlogDTO> fetchBlogById(@PathVariable Long id) {
+        var result = blogService.fetchPostById(id);
+
+        if(result.isEmpty()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(result.get());
     }
 }

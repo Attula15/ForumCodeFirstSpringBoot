@@ -2,6 +2,7 @@ package com.bherincs.forumpractice.service;
 
 import com.bherincs.forumpractice.controllers.BlogPostController;
 import com.bherincs.forumpractice.controllers.dto.blog.BlogDTO;
+import com.bherincs.forumpractice.controllers.dto.blog.DetailedBlogDTO;
 import com.bherincs.forumpractice.database.BlogPost;
 import com.bherincs.forumpractice.database.ForumUser;
 import com.bherincs.forumpractice.database.Tag;
@@ -76,5 +77,16 @@ public class BlogServiceImpl implements BlogService {
         blogRepository.save(newPost);
 
         return Optional.of(mapper.toBlogDTO(newPost));
+    }
+
+    @Override
+    public Optional<DetailedBlogDTO> fetchPostById(Long id) {
+        var entity = blogRepository.findById(id);
+
+        if(entity.isEmpty()){
+            return Optional.empty();
+        }
+
+        return Optional.of(mapper.toDTO(entity.get()));
     }
 }
