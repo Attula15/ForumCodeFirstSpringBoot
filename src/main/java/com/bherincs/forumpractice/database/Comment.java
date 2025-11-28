@@ -1,5 +1,6 @@
 package com.bherincs.forumpractice.database;
 
+import com.bherincs.forumpractice.controllers.dto.comment.CreateCommentDTO;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -22,4 +23,25 @@ public class Comment {
 
     @ManyToOne//Many Commnent to One BlogPost
     private BlogPost rootBlog;
+    private boolean isDeleted;
+
+    public Comment(String content, ForumUser owner, Comment prevComment, BlogPost rootBlog) {
+        this.content = content;
+        this.owner = owner;
+        this.prevComment = prevComment;
+        this.rootBlog = rootBlog;
+        this.isDeleted = false;
+    }
+
+    public Comment() {
+    }
+
+    public Comment(Long id, String content, ForumUser owner, Comment prevComment, BlogPost rootBlog, boolean isDeleted) {
+        this.id = id;
+        this.content = content;
+        this.owner = owner;
+        this.prevComment = prevComment;
+        this.rootBlog = rootBlog;
+        this.isDeleted = isDeleted;
+    }
 }

@@ -5,6 +5,7 @@ import com.bherincs.forumpractice.controllers.dto.ApiResponseDTO;
 import com.bherincs.forumpractice.controllers.dto.blog.BlogDTO;
 import com.bherincs.forumpractice.controllers.dto.blog.CreateBlogDTO;
 import com.bherincs.forumpractice.controllers.dto.blog.DetailedBlogDTO;
+import com.bherincs.forumpractice.controllers.helper.ControllerHelper;
 import com.bherincs.forumpractice.service.JwtService;
 import com.bherincs.forumpractice.service.inter.BlogService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,8 +34,7 @@ public class BlogPostController {
 
     @PostMapping("/create")
     public ResponseEntity<ApiResponseDTO<BlogDTO>> createBlogPost(HttpServletRequest request, @RequestBody CreateBlogDTO body){
-        String token = request.getHeader("Authorization").substring(7);
-        String username = jwtService.extractUsername(token);
+        String username = ControllerHelper.fetchUserNameFromToken(request, jwtService);
 
         ApiResponseDTO<BlogDTO> response;
 
@@ -82,8 +82,7 @@ public class BlogPostController {
 
     @DeleteMapping("/posts/{id}")
     public ResponseEntity<ApiResponseDTO<DetailedBlogDTO>> deleteBlogById(HttpServletRequest request, @PathVariable Long id){
-        String token = request.getHeader("Authorization").substring(7);
-        String username = jwtService.extractUsername(token);
+        String username = ControllerHelper.fetchUserNameFromToken(request, jwtService);
 
         var result = blogService.deleteBlogById(id, username);
 

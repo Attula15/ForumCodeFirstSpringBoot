@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 public class CreateBlogDTO {
-    private String title;
-    private String content;
-    private List<String> tags;
+    private final String title;
+    private final String content;
+    private final List<String> tags;
 }

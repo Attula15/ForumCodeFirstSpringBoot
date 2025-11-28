@@ -1,7 +1,7 @@
 package com.bherincs.forumpractice.mapper;
 
 import com.bherincs.forumpractice.controllers.dto.blog.BlogDTO;
-import com.bherincs.forumpractice.controllers.dto.blog.CommentDTO;
+import com.bherincs.forumpractice.controllers.dto.comment.CommentDTO;
 import com.bherincs.forumpractice.controllers.dto.blog.DetailedBlogDTO;
 import com.bherincs.forumpractice.controllers.dto.user.UserDTO;
 import com.bherincs.forumpractice.database.BlogPost;
@@ -11,11 +11,12 @@ import com.bherincs.forumpractice.database.Tag;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
-public interface entityMapper {
+public interface BlogMapper {
     @Mapping(source = "owner", target = "owner", qualifiedByName = "mapOwnerToString")
     @Mapping(source = "tags", target = "tags", qualifiedByName = "mapTagsToListString")
     BlogDTO toBlogDTO(BlogPost entity);
@@ -26,8 +27,6 @@ public interface entityMapper {
 
     UserDTO toDTO(ForumUser entity);
 
-    CommentDTO toDTO(Comment entity);
-
     @Named("mapOwnerToString")
     default String mapOwnerToString(ForumUser user){
         return user != null ? user.getUsername() : "";
@@ -37,5 +36,9 @@ public interface entityMapper {
     default List<String> mapTags(List<Tag> tags){
         List<String> listOfTags = tags.stream().map(Tag::getName).toList();
         return listOfTags;
+    }
+
+    default CommentDTO mapComment(Comment comment){
+        return Mappers.getMapper(CommentMapper.class).toDTO(comment);
     }
 }

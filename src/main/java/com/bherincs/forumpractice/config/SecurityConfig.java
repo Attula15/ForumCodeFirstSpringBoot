@@ -35,7 +35,6 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                                 .requestMatchers("/auth/**").permitAll()//login and register needs to be excluded
-                                .requestMatchers("/admin").hasAnyRole("ADMIN")//Only an admin can access it
                                 .anyRequest().authenticated()//Needs proper auth for each request
                         )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))//Needed for JWT

@@ -5,7 +5,7 @@ import com.bherincs.forumpractice.controllers.dto.blog.DetailedBlogDTO;
 import com.bherincs.forumpractice.database.BlogPost;
 import com.bherincs.forumpractice.database.ForumUser;
 import com.bherincs.forumpractice.database.Tag;
-import com.bherincs.forumpractice.mapper.entityMapper;
+import com.bherincs.forumpractice.mapper.BlogMapper;
 import com.bherincs.forumpractice.repository.BlogRepository;
 import com.bherincs.forumpractice.repository.TagRepository;
 import com.bherincs.forumpractice.repository.UserRepository;
@@ -28,9 +28,9 @@ public class BlogServiceImpl implements BlogService {
     private final BlogRepository blogRepository;
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
-    private final entityMapper mapper;
+    private final BlogMapper mapper;
 
-    public BlogServiceImpl(BlogRepository blogRepository, TagRepository tagRepository, UserRepository userRepository, entityMapper mapper) {
+    public BlogServiceImpl(BlogRepository blogRepository, TagRepository tagRepository, UserRepository userRepository, BlogMapper mapper) {
         this.blogRepository = blogRepository;
         this.tagRepository = tagRepository;
         this.userRepository = userRepository;
@@ -121,7 +121,7 @@ public class BlogServiceImpl implements BlogService {
             var userResult = userRepository.findByUsername(username);
             if(!(userResult.isPresent() && userResult.get().getRoles().contains("ROLE_ADMIN"))){
                 log.warn("User tried to delete a a post that doesn't belong to him/her. User: {}, blogId: {}", username, id);
-                return  new ServiceResponse<>(null, String.format("You don't have the permission to delete this post."));
+                return  new ServiceResponse<>(null, "You don't have the permission to delete this post.");
             }
             log.info("Admin tries to delete a post");
         }
@@ -133,7 +133,7 @@ public class BlogServiceImpl implements BlogService {
         }
         catch (Exception ex){
             log.error("An unexpected error occurred, when deleting post with id: {}. Exception: {}", id, ex.getMessage());
-            return  new ServiceResponse<>(null, String.format("An unexpected error occurred, please try again later"));
+            return  new ServiceResponse<>(null, "An unexpected error occurred, please try again later");
         }
 
         return new ServiceResponse<>(dto, null);
