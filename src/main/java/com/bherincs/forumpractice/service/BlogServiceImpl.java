@@ -118,9 +118,15 @@ public class BlogServiceImpl implements BlogService {
         var entity = entityResult.get();
 
         if(!entity.getOwner().getUsername().equals(username)){
-            log.warn("User tried to delete a a post that doesn't belong to him/her. User: {}, blogId: {}", username, id);
-            return  new ServiceResponse<>(null, String.format("You don't have the permission to delete this post."));
+            var userResult = userRepository.findByUsername(username);
+            if(!(userResult.isPresent() && userResult.get().getRoles().contains("ROLE_ADMIN"))){
+                log.warn("User tried to delete a a post that doesn't belong to him/her. User: {}, blogId: {}", username, id);
+                return  new ServiceResponse<>(null, String.format("You don't have the permission to delete this post."));
+            }
+            log.info("Admin tries to delete a post");
         }
+
+        DetailedBlogDTO dto = mapper.toDTO(entity);
 
         try{
             blogRepository.delete(entity);
@@ -130,6 +136,6 @@ public class BlogServiceImpl implements BlogService {
             return  new ServiceResponse<>(null, String.format("An unexpected error occurred, please try again later"));
         }
 
-        return new ServiceResponse<>(mapper.toDTO(entity), null);
+        return new ServiceResponse<>(dto, null);
     }
 }
