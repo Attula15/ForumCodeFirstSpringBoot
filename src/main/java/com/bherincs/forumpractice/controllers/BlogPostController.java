@@ -1,20 +1,24 @@
 package com.bherincs.forumpractice.controllers;
 
 import com.azure.security.keyvault.jca.implementation.shaded.org.apache.hc.core5.http.NotImplementedException;
+import com.bherincs.forumpractice.controllers.dto.ApiResponseDTO;
 import com.bherincs.forumpractice.controllers.dto.blog.BlogDTO;
 import com.bherincs.forumpractice.controllers.dto.blog.CreateBlogDTO;
 import com.bherincs.forumpractice.controllers.dto.blog.DetailedBlogDTO;
 import com.bherincs.forumpractice.service.JwtService;
 import com.bherincs.forumpractice.service.inter.BlogService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
 
-//TODO: Add a more detailed return body, that can provide with some info about the error
+
+@Slf4j
 @RestController
 @RequestMapping("/api/blog")
 public class BlogPostController {
@@ -28,17 +32,28 @@ public class BlogPostController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<BlogDTO> createBlogPost(HttpServletRequest request, @RequestBody CreateBlogDTO body){
+    public ResponseEntity<ApiResponseDTO<BlogDTO>> createBlogPost(HttpServletRequest request, @RequestBody CreateBlogDTO body){
         String token = request.getHeader("Authorization").substring(7);
         String username = jwtService.extractUsername(token);
 
-        var createdBlogPost = blogService.createBlogPost(body.getTitle(), body.getContent(), username, body.getTags());
+        ApiResponseDTO<BlogDTO> response;
 
-        if(createdBlogPost.isEmpty()){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        try{
+            var createdBlogPost = blogService.createBlogPost(body.getTitle(), body.getContent(), username, body.getTags());
+
+            response = new ApiResponseDTO<>(createdBlogPost.getData(), createdBlogPost.getErrorMessage());
+
+            if(!response.isSuccess()){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         }
-
-        return ResponseEntity.status(HttpStatus.OK).body(createdBlogPost.get());
+        catch (Exception ex) {
+            log.error("There was an unexpected error while creating post: {}", ex.getMessage());
+            response = new ApiResponseDTO<>(null, "There was an unexpected error while creating the post");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
     }
 
     @GetMapping("/posts")
@@ -53,13 +68,31 @@ public class BlogPostController {
     }
 
     @GetMapping("/posts/{id}")
-    public ResponseEntity<DetailedBlogDTO> fetchBlogById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponseDTO<DetailedBlogDTO>> fetchBlogById(@PathVariable Long id) {
         var result = blogService.fetchPostById(id);
 
-        if(result.isEmpty()){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        var response = new ApiResponseDTO<DetailedBlogDTO>(result.getData(), result.getErrorMessage());
+
+        if(!response.isSuccess()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(result.get());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @DeleteMapping("/posts/{id}")
+    public ResponseEntity<ApiResponseDTO<DetailedBlogDTO>> deleteBlogById(HttpServletRequest request, @PathVariable Long id){
+        String token = request.getHeader("Authorization").substring(7);
+        String username = jwtService.extractUsername(token);
+
+        var result = blogService.deleteBlogById(id, username);
+
+        var response = new ApiResponseDTO<DetailedBlogDTO>(result.getData(), result.getErrorMessage());
+
+        if(!response.isSuccess()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

@@ -22,8 +22,13 @@ public class UserInfoService implements UserDetailsService {
     }
 
     public String addUser(UserLoginDTO registerData) {
-        registerData.setPassword(encoder.encode(registerData.getPassword()));
+        var entityResult = repository.findByUsername(registerData.getUsername());
 
+        if(entityResult.isPresent()){
+            return "Please choose another username!";
+        }
+
+        registerData.setPassword(encoder.encode(registerData.getPassword()));
         ForumUser newForumUser = new ForumUser(registerData.getPassword(), registerData.getUsername());
 
         newForumUser.setRoles("ROLE_USER");

@@ -3,6 +3,8 @@ package com.bherincs.forumpractice.controllers;
 import com.bherincs.forumpractice.controllers.dto.UserLoginDTO;
 import com.bherincs.forumpractice.service.JwtService;
 import com.bherincs.forumpractice.service.UserInfoService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -39,7 +41,15 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public String Register(@RequestBody UserLoginDTO registerData){
-        return service.addUser(registerData);
+    public ResponseEntity<String> Register(@RequestBody UserLoginDTO registerData){
+
+        var result = service.addUser(registerData);
+
+        if(result.equals("User registered")){
+            return ResponseEntity.ok(result);
+        }
+        else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        }
     }
 }
