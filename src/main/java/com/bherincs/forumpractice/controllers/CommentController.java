@@ -9,10 +9,7 @@ import com.bherincs.forumpractice.service.inter.CommentService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/comment")
@@ -38,5 +35,20 @@ public class CommentController {
         }
 
         return ResponseEntity.ok(new ApiResponseDTO<>(commentResult.getData(), null));
+    }
+
+    @DeleteMapping("/comment/{id}")
+    public ResponseEntity<ApiResponseDTO<CommentDTO>> deleteComment(HttpServletRequest request, @PathVariable Long id){
+        String username = ControllerHelper.fetchUserNameFromToken(request, jwtService);
+
+        var commentDeleteResult = commentService.deleteComment(username, id);
+
+        if(!commentDeleteResult.isSuccess()){
+            var response = new ApiResponseDTO<CommentDTO>(null, commentDeleteResult.getErrorMessage());
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+        return ResponseEntity.ok(new ApiResponseDTO<>(commentDeleteResult.getData(), null));
     }
 }

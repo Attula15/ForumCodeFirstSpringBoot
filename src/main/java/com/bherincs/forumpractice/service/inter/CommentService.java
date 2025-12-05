@@ -6,5 +6,5 @@ import com.bherincs.forumpractice.service.dto.ServiceResponse;
 
 public interface CommentService {
     ServiceResponse<CommentDTO> createComment(String username, CreateCommentDTO dto);
-    ServiceResponse<CommentDTO> deleteComment(Long id);
+    ServiceResponse<CommentDTO> deleteComment(String username, Long id);
 }

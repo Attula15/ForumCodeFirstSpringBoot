@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Nationalized;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Entity
@@ -37,5 +38,9 @@ public class ForumUser {
     public ForumUser(String password, String username) {
         this.password = password;
         this.username = username;
+    }
+
+    public List<String> getRoles(){
+        return Arrays.stream(this.roles.split(",")).toList();
     }
 }

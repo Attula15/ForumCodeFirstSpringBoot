@@ -18,7 +18,7 @@ public class UserInfoDetails implements UserDetails {
     public UserInfoDetails(ForumUser forumUserInfo) {
         this.username = forumUserInfo.getUsername(); // Use email as username
         this.password = forumUserInfo.getPassword();
-        this.authorities = List.of(forumUserInfo.getRoles().split(","))
+        this.authorities = forumUserInfo.getRoles()
                 .stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());

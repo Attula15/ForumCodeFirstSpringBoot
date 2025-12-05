@@ -60,6 +60,8 @@ public class CommentServiceImpl implements CommentService {
             var newComment = new Comment(dto.getContent(), userResult.get(), prevComment, blogResult.get());
             commentRepository.save(newComment);
 
+            log.info("New comment posted by: {}", username);
+
             return new ServiceResponse<>(mapper.toDTO(newComment), null);
         }
         catch (Exception ex){
@@ -69,7 +71,33 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public ServiceResponse<CommentDTO> deleteComment(Long id) {
-        return null;
+    public ServiceResponse<CommentDTO> deleteComment(String username, Long id) {
+        var userResult = userRepository.findByUsername(username);
+
+        if(userResult.isEmpty()){
+            log.warn("Could not find user for creating comment: {}", username);
+            return new ServiceResponse<>(null, "Could not find user!");
+        }
+
+        var commentResult = commentRepository.findById(id);
+
+        if(commentResult.isEmpty()){
+            log.warn("Given comment comment could not be found by id: {}", id);
+            return new ServiceResponse<>(null, "Comment given, but could not be found!");
+        }
+
+        var comment = commentResult.get();
+        var user = userResult.get();
+
+        if(comment.getOwner() != user){
+            if(!user.getRoles().contains("ROLE_ADMIN")){
+                log.warn("The user tried to delete a comment that he/she is not authorized to delete!. User: {}, comment: {}", username, id);
+                return new ServiceResponse<>(null, "You are not authorized!");
+            }
+        }
+
+        comment.setDeleted(true);
+        log.info("Comment: {} deleted by user: {}", id, username);
+        return new ServiceResponse<>(mapper.toDTO(comment), null);
     }
 }
